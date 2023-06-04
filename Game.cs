@@ -27,14 +27,14 @@ namespace Uncoded_One
                 {
                     Character? defeatedHero = null;
                     defeatedHero = CheckCharacterStatus(hero);
-                    isGameOver = true;
                     if (defeatedHero != null)
                     {
                         heroes.characters.Remove(hero);
                         defeatedHero = null;
+                        break;
                     }
 
-                    if(heroes.characters.Count > 0)
+                    if (heroes.characters.Count > 0)
                     {
                         Console.WriteLine($"It is {hero.Name} turn");
                         hero.TakeTurn(heroes.characters, monsters.characters);

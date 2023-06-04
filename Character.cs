@@ -22,7 +22,8 @@ namespace Uncoded_One
 
         public int MaxHP { get { return _maxHitPoints;  } set { _maxHitPoints = value; } }
 
-        public Inventory inventory = new Inventory();
+        public Inventory inventory = new();
+        public Item gear = null;
 
         public bool defeated = false;
         public Character()
@@ -84,6 +85,11 @@ namespace Uncoded_One
             Console.WriteLine("1 - Do Nothing");
             Console.WriteLine("2 - Standard Attack (PUNCH)");
             Console.WriteLine("3 - Use Health Potion");
+            Console.WriteLine("4 - Equip Gear");
+            if(character.gear != null)
+            {
+                Console.WriteLine("5 - Use Gear");
+            }
 
 
             int userInput = 0;
@@ -102,6 +108,10 @@ namespace Uncoded_One
                     index = 2;
                     return ActionType.UseItem;
                     break;
+                case 4:
+                    index = 3;
+                    return ActionType.EquipGear;
+                    break;
                 default:
                     index = 0;
                     return ActionType.DoNothing;
@@ -110,15 +120,31 @@ namespace Uncoded_One
         }
     }
 
-    public class ComputerPlayer: IPlayer
+    public class ComputerPlayer : IPlayer
     {
         public ActionType ChooseAction(Character character, out int index)
         {
-            index = 1;
-            return ActionType.Attack;
+            index = 0;
+            if (character.inventory.items.Count > 0 && character.HP <= character.MaxHP / 2)
+            {
+                Random rand = new Random();
+                int chance = rand.Next(4);
+                index = 1;
+                if (chance <= 1)
+                {
+                    index = 2;
+                    return ActionType.UseItem;
+                }else
+                {
+                    index = 1;
+                    return ActionType.Attack;
+                }
+            }
+            else
+            {
+                index = 1;
+                return ActionType.Attack;
+            }
         }
     }
-     
-    
-
 }

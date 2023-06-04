@@ -10,6 +10,8 @@ namespace Uncoded_One
     {
         DoNothing,
         Attack,
+        EquipGear,
+        AttackWithGear,
         UseItem
     }
 
@@ -57,13 +59,28 @@ namespace Uncoded_One
                     Execute(attacker, target);
                     break;
                 case ActionType.UseItem:
-                    if (attacker.inventory.Items.Count == 0)
+                    if (attacker.inventory.items.Count == 0)
                     {
                         Console.WriteLine("No more health potion");
                         break;
                     }
-                    Item item = attacker.inventory.Items[0];
+                    Item item = attacker.inventory.items[0];
                     UseItem(item, attacker);
+                    break;
+                case ActionType.EquipGear:
+                    Item gear = null;
+                    //List<int> numGearAllowed = new List<int> { 0 };
+                    for (int i = 0; i < attacker.inventory.items.Count; i++)
+                    {
+                        if (attacker.inventory.items[i].Type == Inventory.ItemType.Gear)
+                        {
+                            Console.WriteLine($"{i} - {attacker.inventory.items[i].Name}");
+                            gear = attacker.inventory.items[i];
+                            break;
+                            //numGearAllowed.Add(i);
+                        }
+                    }                   
+                    EquipGear(gear, attacker);
                     break;
                 default:
                     Console.WriteLine("No Action Picked");
@@ -92,6 +109,20 @@ namespace Uncoded_One
         public void UseItem(Item item, Character target)
         {
             item.Execute(target);
+        }
+
+        public void EquipGear(Item item, Character target)
+        {
+            if(target.gear != null)
+            {
+                target.inventory.Add(target.gear);
+                Console.WriteLine($"{target.Name} unequpped {target.gear}");
+            }
+
+            target.gear = item;
+            target.inventory.items.Remove(item);
+            Console.WriteLine($"{target.Name} equpped {item.Name}");
+
         }
 
         public void Execute(Character attacker, Character target)
