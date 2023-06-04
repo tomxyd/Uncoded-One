@@ -125,6 +125,7 @@ namespace Uncoded_One
     {
         private int _damage;
 
+        public int Damage {  get { return _damage; } }
         public Gear(string name, int damage)
         {
             _type = ItemType.Gear;

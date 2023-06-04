@@ -46,7 +46,7 @@ namespace Uncoded_One
 
         public string Name { get { return _name; } }
         public ActionType Type { get; set; } = ActionType.DoNothing;
-        public DamageType Damage  = DamageType.constant;
+        public DamageType Damage = DamageType.constant;
 
         public void PerformAction(ActionType type, Character attacker, Character target)
         {
@@ -68,23 +68,58 @@ namespace Uncoded_One
                     UseItem(item, attacker);
                     break;
                 case ActionType.EquipGear:
-                    Item gear = null;
-                    //List<int> numGearAllowed = new List<int> { 0 };
-                    for (int i = 0; i < attacker.inventory.items.Count; i++)
-                    {
-                        if (attacker.inventory.items[i].Type == Inventory.ItemType.Gear)
-                        {
-                            Console.WriteLine($"{i} - {attacker.inventory.items[i].Name}");
-                            gear = attacker.inventory.items[i];
-                            break;
-                            //numGearAllowed.Add(i);
-                        }
-                    }                   
+                    Gear gear = null;
+                    ChooseGear(attacker, out gear);
                     EquipGear(gear, attacker);
+                    break;
+                case ActionType.AttackWithGear:
+                    Execute(attacker, target);
                     break;
                 default:
                     Console.WriteLine("No Action Picked");
                     break;
+            }
+        }
+        public void ChooseGear(Character character, out Gear gear)
+        {
+            gear = null;
+            if (character.PlayerType == PlayerType.Human)
+            {
+                List<int> numGearAllowed = new List<int> { 0 };
+                for (int i = 0; i < character.inventory.items.Count; i++)
+                {
+                    if (character.inventory.items[i].Type == Inventory.ItemType.Gear)
+                    {
+                        Console.WriteLine($"{i} - {character.inventory.items[i].Name}");
+                        numGearAllowed.Add(i);
+                    }
+                }
+
+                Console.WriteLine("Please choose gear to equip");
+                int userChoice = int.Parse(Console.ReadLine());
+                for (int i = 0; i < numGearAllowed.Count; i++)
+                {
+                    if (userChoice == numGearAllowed[i])
+                    {
+                        gear = (Gear?)character.inventory.items[userChoice];
+                    }
+                }
+                if(gear == null)
+                {
+                    Console.WriteLine("Out of Range");
+                    ChooseGear(character, out gear);
+                }
+            }else
+
+            {
+                for (int i = 0; i < character.inventory.items.Count; i++)
+                {
+                    if (character.inventory.items[i].Type == Inventory.ItemType.Gear)
+                    {
+                        gear = (Gear?)character.inventory.items[i];
+                        break;
+                    }
+                }
             }
         }
 
@@ -105,13 +140,30 @@ namespace Uncoded_One
                     break;
             }
         }
+        public int CalculateDamageWithGear(Character character)
+        {
+            switch (Damage)
+            {
+                case DamageType.constant:
+                    return _damage + character.gear.Damage;
+                    break;
+                case DamageType.random:
+                    int seed = DateTime.Now.GetHashCode();
+                    Rand = new Random(seed);
+                    return Rand.Next(1, _damage + character.gear.Damage);
+                    break;
+                default:
+                    return _damage + character.gear.Damage;
+                    break;
+            }
+        }
 
         public void UseItem(Item item, Character target)
         {
             item.Execute(target);
         }
 
-        public void EquipGear(Item item, Character target)
+        public void EquipGear(Gear item, Character target)
         {
             if(target.gear != null)
             {
@@ -127,10 +179,12 @@ namespace Uncoded_One
 
         public void Execute(Character attacker, Character target)
         {
-            _damage = CalculateDamage();
+            _damage = (attacker.gear == null ? CalculateDamage() : CalculateDamageWithGear(attacker));
+            _name = (attacker.gear == null ? _name : attacker.gear.Name);
             Console.WriteLine($"{attacker.Name} used {_name} on {target.Name}");
             target.TakeDamage( _damage );
             Console.WriteLine($"{_name} dealt {_damage} to {target.Name}");
+            target.HP = Math.Max(0, target.HP);
             Console.WriteLine($"{target.Name} is now at {target.HP}/{target.MaxHP} HP.\n");
         }
     }

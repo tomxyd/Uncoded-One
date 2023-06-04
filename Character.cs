@@ -7,11 +7,17 @@ using System.Threading.Tasks;
 
 namespace Uncoded_One
 {
+    public enum PlayerType
+    {
+        Computer,
+        Human
+    }
     public class Character
     {
 
         protected string? _name;
         protected IPlayer _player;
+        protected PlayerType _playerType = PlayerType.Human;
 
         private int _maxHitPoints;
         private int _hitPoints;
@@ -19,11 +25,11 @@ namespace Uncoded_One
 
         public string Name { get { return _name; } set { _name = value; } }
         public int HP { get { return _hitPoints; } set { _hitPoints = value; } }
-
+        public PlayerType PlayerType { get { return _playerType; } set { _playerType = value; } }
         public int MaxHP { get { return _maxHitPoints;  } set { _maxHitPoints = value; } }
 
         public Inventory inventory = new();
-        public Item gear = null;
+        public Gear gear = null;
 
         public bool defeated = false;
         public Character()
@@ -38,6 +44,13 @@ namespace Uncoded_One
         {
             _name = name;
             _player = player;
+        }
+
+        public Character(string name, IPlayer player, PlayerType type)
+        {
+            _name = name;
+            _player = player;
+            _playerType = type;
         }
 
         public void Init()
@@ -111,6 +124,10 @@ namespace Uncoded_One
                 case 4:
                     index = 3;
                     return ActionType.EquipGear;
+                    break;
+                case 5:
+                    index = 4;
+                    return ActionType.AttackWithGear;
                     break;
                 default:
                     index = 0;

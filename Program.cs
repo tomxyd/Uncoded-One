@@ -16,7 +16,7 @@ HealthPotion standardPotion = new HealthPotion(15);
 Gear sword = new Gear("Magis", 5);
 
 // SETTING UP PLAYER CHARACTER
-Character hero = new Character(userName, new HumanPlayer());
+Character hero = new Character(userName, new HumanPlayer(), PlayerType.Human);
 hero.MaxHP = 25;
 hero.Init();
 hero.inventory.Add(potion1);
@@ -27,15 +27,17 @@ hero.inventory.Add(sword);
 Uncoded_One.Action punch = new Uncoded_One.Action("punch", 1, ActionType.Attack, DamageType.constant);
 Uncoded_One.Action health = new Uncoded_One.Action("health", ActionType.UseItem);
 Uncoded_One.Action gear = new Uncoded_One.Action("gear", ActionType.EquipGear);
+Uncoded_One.Action attackWithGear = new Uncoded_One.Action("GearAttack", ActionType.AttackWithGear);
 
 hero.AddAction(punch);
 hero.AddAction(health);
 hero.AddAction(gear);
+hero.AddAction(attackWithGear);
 
-Character monster = new Character("SKELETON", new ComputerPlayer());
-Character monster1 = new Character("SKELETON1", new ComputerPlayer());
-Character monster2 = new Character("SKELETON2", new ComputerPlayer());
-Character uncodedOne = new Character("The Uncoded One", new ComputerPlayer());
+Character monster = new Character("SKELETON", new ComputerPlayer(), PlayerType.Computer);
+Character monster1 = new Character("SKELETON1", new ComputerPlayer(), PlayerType.Computer);
+Character monster2 = new Character("SKELETON2", new ComputerPlayer(), PlayerType.Computer);
+Character uncodedOne = new Character("The Uncoded One", new ComputerPlayer(), PlayerType.Computer);
 
 monster.MaxHP = 5;
 monster.Init();
