@@ -7,14 +7,15 @@ using static Uncoded_One.Inventory;
 
 namespace Uncoded_One
 {
+    public enum ItemType
+    {
+        Default,
+        Potion,
+        Gear
+    }
     public class Inventory
     {
-        public enum ItemType
-        { 
-            Default,
-            Potion,
-            Gear
-        }
+
 
         public List<Item> items;
 

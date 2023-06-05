@@ -4,7 +4,7 @@ using Uncoded_One;
 
 Game g = new Game();
 
-string userName = " ";
+string? userName = " ";
 
 Console.WriteLine("Please enter a name for your character:");
 userName = Console.ReadLine();
@@ -13,7 +13,8 @@ userName = Console.ReadLine();
 HealthPotion potion1 = new HealthPotion(10);
 HealthPotion potion2 = new HealthPotion(10);
 HealthPotion standardPotion = new HealthPotion(15);
-Gear sword = new Gear("Magis", 5);
+Gear sword = new Gear("slash", 2);
+Gear dagger = new Gear("dagger", 1);
 
 // SETTING UP PLAYER CHARACTER
 Character hero = new Character(userName, new HumanPlayer(), PlayerType.Human);
@@ -21,7 +22,8 @@ hero.MaxHP = 25;
 hero.Init();
 hero.inventory.Add(potion1);
 hero.inventory.Add(potion2);
-hero.inventory.Add(sword);
+hero.gear = sword;
+hero.inventory.Add(dagger);
 
 // ACTIONS INITIATION
 Uncoded_One.Action punch = new Uncoded_One.Action("punch", 1, ActionType.Attack, DamageType.constant);
@@ -41,6 +43,7 @@ Character uncodedOne = new Character("The Uncoded One", new ComputerPlayer(), Pl
 
 monster.MaxHP = 5;
 monster.Init();
+monster.gear = dagger;
 
 monster1.MaxHP = 5;
 monster1.Init();
@@ -83,8 +86,12 @@ for (int i = 0; i < g.monsterParties.Count; i++)
     foreach(Character character in g.monsterParties[i].characters)
     {
         character.inventory.Add(standardPotion);
-        character.inventory.Add(sword);
+        character.inventory.Add(dagger);
+        character.inventory.Add(dagger);
+
         character.AddAction(health);
+        character.AddAction(gear);
+        character.AddAction(attackWithGear);
     }
 }
 

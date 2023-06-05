@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,7 +16,7 @@ namespace Uncoded_One
     public class Character
     {
 
-        protected string? _name;
+        protected string _name = "default";
         protected IPlayer _player;
         protected PlayerType _playerType = PlayerType.Human;
 
@@ -23,7 +24,7 @@ namespace Uncoded_One
         private int _hitPoints;
         private List<Action> _actions = new List<Action>();
 
-        public string Name { get { return _name; } set { _name = value; } }
+        public string Name { get => _name; set { _name = value; } }
         public int HP { get { return _hitPoints; } set { _hitPoints = value; } }
         public PlayerType PlayerType { get { return _playerType; } set { _playerType = value; } }
         public int MaxHP { get { return _maxHitPoints;  } set { _maxHitPoints = value; } }
@@ -105,7 +106,7 @@ namespace Uncoded_One
             }
 
 
-            int userInput = 0;
+            int? userInput = 0;
             userInput = int.Parse(Console.ReadLine());
             switch(userInput)
             {
@@ -141,21 +142,74 @@ namespace Uncoded_One
     {
         public ActionType ChooseAction(Character character, out int index)
         {
-            index = 0;
-            if (character.inventory.items.Count > 0 && character.HP <= character.MaxHP / 2)
+            int chance = 0;
+            Random rand = new Random();
+            bool equippedGear = false;
+            if (character.gear != null)
             {
-                Random rand = new Random();
-                int chance = rand.Next(4);
-                index = 1;
-                if (chance <= 1)
+               equippedGear = true;
+            }
+            else
+                equippedGear = false;
+            chance = rand.Next(1, 101);
+
+            if(character.inventory.items.Count > 0 )
+            {
+                if(character.HP <= character.MaxHP / 2)
                 {
-                    index = 2;
-                    return ActionType.UseItem;
+                    if(chance <= 25)
+                    {
+                        index = 2;
+                        return ActionType.UseItem;
+                    }else
+                    {
+                        if (equippedGear)
+                        {
+                            index = 4;
+                            return ActionType.AttackWithGear;
+                        }
+                        else
+                        {
+                            index = 1;
+                            return ActionType.Attack;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < character.inventory.items.Count; i++)
+                    {
+                        if (character.inventory.items[i].Type == ItemType.Gear && !equippedGear)
+                        {
+                            if (chance <= 50)
+                            {
+                                index = 3;
+                                equippedGear = true;
+                                return ActionType.EquipGear;
+                            }
+                        }
+                        else
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                if(equippedGear)
+                {
+                    index = 4;
+                    return ActionType.AttackWithGear;
                 }else
                 {
                     index = 1;
                     return ActionType.Attack;
                 }
+            }
+
+            if (equippedGear)
+            {
+                index = 4;
+                return ActionType.AttackWithGear;
             }
             else
             {
@@ -164,4 +218,5 @@ namespace Uncoded_One
             }
         }
     }
+
 }
