@@ -8,6 +8,50 @@ using System.Threading.Tasks;
 
 namespace Uncoded_One
 {
+    public class AttackModifier
+    {
+        public string Name { get; set; }
+        public int Value { get; set; }
+
+        public AttackModifier()
+        {
+            Name = string.Empty;
+        }
+
+        public AttackModifier(string name)
+        {
+            this.Name = name;
+        }
+        public AttackModifier(string name, int value)
+        {
+            this.Name=name;
+            this.Value = value;
+        }
+
+        public virtual AttackData ModifyAttack(AttackData data)
+        {
+            data.damage -= Value;
+            return data;
+        }
+    }
+
+    public class Decoder : AttackModifier
+    {
+        public Decoder(string name, int value)
+        {
+            this.Name = name;
+            this.Value = value;
+        }
+        public override AttackData ModifyAttack(AttackData data)
+        {
+            if (data.damageType == DamageType.random)
+            {
+                data.damage -= 2;
+            }
+
+            return data;
+        }
+    }
     public enum PlayerType
     {
         Computer,
@@ -28,6 +72,7 @@ namespace Uncoded_One
         public int HP { get { return _hitPoints; } set { _hitPoints = value; } }
         public PlayerType PlayerType { get { return _playerType; } set { _playerType = value; } }
         public int MaxHP { get { return _maxHitPoints;  } set { _maxHitPoints = value; } }
+        public AttackModifier DefensiveAttackModifier { get; set; }
 
         public Inventory inventory = new();
         public Gear gear = null;
@@ -52,6 +97,14 @@ namespace Uncoded_One
             _name = name;
             _player = player;
             _playerType = type;
+        }
+
+        public Character(string name, IPlayer player, PlayerType type, AttackModifier modifier)
+        {
+            _name = name;
+            _player = player;
+            _playerType = type;
+            DefensiveAttackModifier = modifier;
         }
 
         public void Init()

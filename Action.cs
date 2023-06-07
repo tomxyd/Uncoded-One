@@ -21,6 +21,12 @@ namespace Uncoded_One
         random
     }
 
+    public class AttackData
+    {
+        public DamageType damageType = DamageType.constant;
+        public int damage;
+    }
+
     public class Action
     {
         private string _name;
@@ -28,6 +34,8 @@ namespace Uncoded_One
         public Random Rand { get; private set; }
 
         private int _damage;
+
+        private bool attackFailed = false;
 
         public Action(string name) => this._name = name;
 
@@ -37,16 +45,17 @@ namespace Uncoded_One
             Type = type;
         }
 
-        public Action(string name, int damage, ActionType type, DamageType damageType) : this(name)
+        public Action(string name, int damage, ActionType type, DamageType _damageType) : this(name)
         {
-            _damage = damage;
+            AttackData.damage = damage;
             Type = type;
-            Damage = damageType;
+            AttackData.damageType = _damageType;
         }
 
         public string Name { get { return _name; } }
         public ActionType Type { get; set; } = ActionType.DoNothing;
-        public DamageType Damage = DamageType.constant;
+        public AttackData AttackData = new AttackData();
+       
 
         public void PerformAction(ActionType type, Character attacker, Character target)
         {
@@ -56,6 +65,11 @@ namespace Uncoded_One
                     Console.WriteLine($"{attacker.Name} did NOTHING");
                     break;
                 case ActionType.Attack:
+                    if(attackFailed)
+                    {
+                        Console.WriteLine($"{attacker.Name} MISSES");
+                        return;
+                    }
                     Execute(attacker, target);
                     break;
                 case ActionType.UseItem:
@@ -73,6 +87,11 @@ namespace Uncoded_One
                     EquipGear(gear, attacker);
                     break;
                 case ActionType.AttackWithGear:
+                    if (attackFailed)
+                    {
+                        Console.WriteLine($"{attacker.Name} MISSES");
+                        return;
+                    }
                     ExecuteWithGear(attacker, target);
                     break;
                 default:
@@ -83,7 +102,7 @@ namespace Uncoded_One
 
         public void ExecuteWithGear(Character attacker, Character target)
         {
-            _damage = CalculateDamageWithGear(attacker);
+            _damage = CalculateDamageWithGear(attacker, target);
             _name = (attacker.gear == null ? _name : attacker.gear.Name);
             Console.WriteLine($"{attacker.Name} used {_name} on {target.Name}");
             target.TakeDamage(_damage);
@@ -133,38 +152,42 @@ namespace Uncoded_One
             }
         }
 
-        public int CalculateDamage()
+        public int CalculateDamage(Character defender)
         {
-            switch (Damage)
+            switch (AttackData.damageType)
             {
                 case DamageType.constant:
-                    return _damage;
-                    break;
+                    AttackData = defender.DefensiveAttackModifier.ModifyAttack(AttackData);
+                    return AttackData.damage;
+                    
                 case DamageType.random:
                     int seed = DateTime.Now.GetHashCode();
                     Rand = new Random(seed);
-                    return Rand.Next(1,_damage);
-                    break;
+                    AttackData = defender.DefensiveAttackModifier.ModifyAttack(AttackData);
+                    return Rand.Next(1, AttackData.damage);         
                 default:
-                    return _damage;
-                    break;
+                    AttackData = defender.DefensiveAttackModifier.ModifyAttack(AttackData);
+                    return AttackData.damage;
             }
         }
-        public int CalculateDamageWithGear(Character character)
+        public int CalculateDamageWithGear(Character attacker, Character defender)
         {
-            switch (Damage)
+            switch (AttackData.damageType)
             {
                 case DamageType.constant:
-                    return character.gear.Damage;
-                    break;
+                    int damage = attacker.gear.Damage - defender.DefensiveAttackModifier.Value;
+                    return damage;
+                    
                 case DamageType.random:
                     int seed = DateTime.Now.GetHashCode();
                     Rand = new Random(seed);
-                    return Rand.Next(1, character.gear.Damage);
-                    break;
+                    damage = attacker.gear.Damage - defender.DefensiveAttackModifier.Value;
+
+                    return Rand.Next(1, damage);
+                    
                 default:
-                    return character.gear.Damage;
-                    break;
+                    damage = attacker.gear.Damage - defender.DefensiveAttackModifier.Value;
+                    return damage;
             }
         }
 
@@ -189,12 +212,31 @@ namespace Uncoded_One
 
         public void Execute(Character attacker, Character target)
         {
-            _damage = CalculateDamage();
+            _damage = CalculateDamage(target);
             Console.WriteLine($"{attacker.Name} used {_name} on {target.Name}");
+
             target.TakeDamage( _damage );
+            if (target.DefensiveAttackModifier != null)
+            {
+                Console.WriteLine($"{target.DefensiveAttackModifier.Name} reduced the attack by " +
+                    $"{target.DefensiveAttackModifier.Value} point");
+            }
             Console.WriteLine($"{_name} dealt {_damage} to {target.Name}");
             target.HP = Math.Max(0, target.HP);
             Console.WriteLine($"{target.Name} is now at {target.HP}/{target.MaxHP} HP.\n");
+        }
+
+        public bool CheckSuccess()
+        {
+            int chance = Rand.Next(0, 101);
+            if (chance <= 10)
+                attackFailed = true;
+            else
+            {
+                attackFailed = false;
+            }
+ 
+            return attackFailed;
         }
 
 

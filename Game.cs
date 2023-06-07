@@ -60,6 +60,7 @@ namespace Uncoded_One
                     if (monsters.characters.Count <= 0)
                     {
                         isGameOver = true;
+                        
                         break;
                     }
                     else
@@ -72,11 +73,15 @@ namespace Uncoded_One
                         Console.WriteLine($"It is {monster.Name} turn");
                         monster.TakeTurn(monsters.characters, heroes.characters);
                     }
-
                 }
 
                 round++;
             }
+        }
+
+        public void LootDefeated(Character winner, Character loser)
+        {
+
         }
         public Character? CheckCharacterStatus(Character character)
         {
@@ -92,19 +97,20 @@ namespace Uncoded_One
         
 
         public void DisplayUI(Party heroes, Party monsters)
-        {
+        {           
+            Console.WriteLine("=======================BATTLE=========================");
             foreach(Character hero in heroes.characters)
             {
-                Console.WriteLine("=======================BATTLE=========================");
                 Console.WriteLine($"{hero.Name}   {hero.HP}/{hero.MaxHP}");
-                Console.WriteLine("------------------VS----------------------------------");
-                for (int i = 0; i < monsters.characters.Count; i++)
-                {
-                    Character monster = monsters.characters[i];
-                    Console.WriteLine($"\t\t\t{monster.Name} {monster.HP}/{monster.MaxHP}");                   
-                }
-                Console.WriteLine("======================================================");
             }
+            Console.WriteLine("------------------VS----------------------------------");
+            for (int i = 0; i < monsters.characters.Count; i++)
+            {
+                Character monster = monsters.characters[i];
+                Console.WriteLine($"\t\t\t{monster.Name} {monster.HP}/{monster.MaxHP}");                   
+            }
+            Console.WriteLine("======================================================");
+            
         }
 
         public void StartGame()

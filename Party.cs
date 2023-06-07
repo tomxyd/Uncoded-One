@@ -10,9 +10,21 @@ namespace Uncoded_One
     {
         public List<Character> characters = new List<Character>();
 
+        public Inventory inventory = new Inventory();
+
         public void AddCharcter(Character character)
         {
             characters.Add(character);
+        }
+
+        public bool IsEliminated()
+        {
+            if (characters.Count == 0)
+            {
+                return true;
+            }
+            else
+                return false;
         }
     }
 }
