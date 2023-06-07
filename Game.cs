@@ -99,8 +99,9 @@ namespace Uncoded_One
         public void DisplayUI(Party heroes, Party monsters)
         {           
             Console.WriteLine("=======================BATTLE=========================");
-            foreach(Character hero in heroes.characters)
+            for (int i = 0; i < heroes.characters.Count; i++)
             {
+                Character hero = heroes.characters[i];
                 Console.WriteLine($"{hero.Name}   {hero.HP}/{hero.MaxHP}");
             }
             Console.WriteLine("------------------VS----------------------------------");
